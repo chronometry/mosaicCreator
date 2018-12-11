@@ -11,13 +11,13 @@ float[] saturation = new float[pics.length];
 PImage[][][] imageTable = new PImage[256][256][256];
 
 
-int scl = 3;
+int scl = 6;
 int h, w;
 void setup() {
   colorMode(HSB);
   noStroke();
   frameRate =1;
-  faith = loadImage("Faith.jpeg");
+  faith = loadImage("Roman.jpeg");
   surface.setSize(faith.width, faith.height);
   w = faith.width/scl;
   h = faith.height/scl;
@@ -60,13 +60,13 @@ void setup() {
         int record = 0;
         for (int j = 0; j < brightness.length; j++) {
           float diff = abs(b-brightness[j]) + abs(h-hue[j]) + abs(s-saturation[j]);
-          
-          if(diff<closest) {
+
+          if (diff<closest) {
             closest = diff;
             record = j;
           }
         }
-        
+
         imageTable[b][h][s] = pics[record];
       }
     }
@@ -78,6 +78,8 @@ void setup() {
 void draw() {
   background(0);
   smaller.loadPixels();
+  int h1 = 0, s1 = 0, b1 = 0;
+  
   for (int x = 0; x < w; x++) {
     for (int y = 0; y < h; y++) {
       int index = x + y * w;
@@ -86,11 +88,16 @@ void draw() {
       int h = int(hue(c)); 
       int s = int(saturation(c));
       image(imageTable[b][h][s], x*scl, y*scl, scl, scl);
-      
-      if (mouseX > x*scl && mouseX < (x+1)*scl && mouseY > y*scl && mouseY < (y+1)*scl
-        && mousePressed) {
-          image(imageTable[b][h][s], 0, 0);
+
+      if (mouseX > x*scl && mouseX < (x+1)*scl && mouseY > y*scl && mouseY < (y+1)*scl) {
+          h1 = h;
+          s1 = s;
+          b1 = b;
       }
     }
+  }
+  
+  if(mousePressed) {
+    image(imageTable[b1][h1][s1], 0, 0);
   }
 }
