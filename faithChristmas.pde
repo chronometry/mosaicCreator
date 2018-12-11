@@ -86,6 +86,11 @@ void draw() {
       int h = int(hue(c)); 
       int s = int(saturation(c));
       image(imageTable[b][h][s], x*scl, y*scl, scl, scl);
+      
+      if (mouseX > x*scl && mouseX < (x+1)*scl && mouseY > y*scl && mouseY < (y+1)*scl
+        && mousePressed) {
+          image(imageTable[b][h][s], 0, 0);
+      }
     }
   }
 }
