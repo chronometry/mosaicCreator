@@ -2,15 +2,19 @@ PImage faith;
 PImage smaller;
 PImage[] pics = new PImage[81];
 
+
 float[] brightness = new float[pics.length];
-PImage[] brightImages = new PImage[256];
+float[] hue        = new float[pics.length];
+float[] saturation = new float[pics.length];
 
-float[] hues = new float[pics.length];
-PImage[] hueImages = new PImage[256];
+//brightness, hue, saturation because fuck
+PImage[][][] imageTable = new PImage[256][256][256];
 
-int scl = 4;
+
+int scl = 3;
 int h, w;
 void setup() {
+  colorMode(HSB);
   noStroke();
   frameRate =1;
   faith = loadImage("Faith.jpeg");
@@ -25,73 +29,63 @@ void setup() {
   for (int i = 0; i < pics.length; i++) {
     String imageName = "data/pics/pic" + nf(i, 3) + ".jpg";
     pics[i] = loadImage(imageName);
-
     pics[i].loadPixels();
-    float avg = 0;
+
+    float avgb = 0;
     float avgh = 0;
+    float avgs = 0;
     for (int j = 0; j < pics[i].pixels.length; j++) {
       float b = brightness(pics[i].pixels[j]);
-
-      avg += b;
-
-      //float h = hue(pics[i].pixels[j]);
-
-      //avgh += h;
+      avgb += b;
+      float h = hue(pics[i].pixels[j]);
+      avgh += h;
+      float s = saturation(pics[i].pixels[j]);
+      avgs += s;
     }
 
-    avg /= pics[i].pixels.length;
-    brightness[i] = avg;
+    avgb /= pics[i].pixels.length;
+    brightness[i] = avgb;
 
-    //avgh /= pics[i].pixels.length;
-    //hues[i] = avgh;
+    avgh /= pics[i].pixels.length;
+    hue[i]        = avgh;
+
+    avgs /= pics[i].pixels.length;
+    saturation[i] = avgs;
   }
 
-  for (int i = 0; i < brightImages.length; i++) {
-    float closest = 256;
-    for (int j = 0; j < brightness.length; j++) {
-      float diff = abs(i-brightness[j]);
-      if (diff<closest) {
-        closest = diff;
-        brightImages[i] = pics[j];
+  for (int b = 0; b < imageTable.length; b++) {
+    for (int h = 0; h < imageTable.length; h++) {
+      for (int s = 0; s < imageTable.length; s++) {
+        float closest = 256*3;
+        int record = 0;
+        for (int j = 0; j < brightness.length; j++) {
+          float diff = abs(b-brightness[j]) + abs(h-hue[j]) + abs(s-saturation[j]);
+          
+          if(diff<closest) {
+            closest = diff;
+            record = j;
+          }
+        }
+        
+        imageTable[b][h][s] = pics[record];
       }
     }
-    
-    //float closest2 = 256;
-    //for (int j = 0; j < hues.length; j++) {
-    //  float diff = abs(i-hues[j]);
-    //  if (diff<closest) {
-    //    closest = diff;
-    //    hueImages[i] = pics[j];
-    //  }
-    //}
   }
-  
-  printArray(brightness);
+
+  printArray(imageTable);
 }
 
 void draw() {
-  //scl--;
-  //image(faith, 0, 0);  
-  //image(smaller, 0, 0); 
   background(0);
   smaller.loadPixels();
   for (int x = 0; x < w; x++) {
     for (int y = 0; y < h; y++) {
       int index = x + y * w;
       color c = smaller.pixels[index];
-      int imageIndex = int(brightness(c));
-      image(brightImages[imageIndex], x*scl, y*scl, scl, scl);
+      int b = int(brightness(c));
+      int h = int(hue(c)); 
+      int s = int(saturation(c));
+      image(imageTable[b][h][s], x*scl, y*scl, scl, scl);
     }
   }
-
-  //for (int x = 0; x < w; x++) {
-  //  for (int y = 0; y < h; y++) {
-  //    int index = x + y * w;
-  //    color c = smaller.pixels[index];
-  //    int imageIndex = int(hue(c));
-  //    image(hueImages[imageIndex], x*scl, y*scl, scl, scl);
-  //  }
-  //}
-
-  //noLoop();
 }
