@@ -11,13 +11,15 @@ float[] saturation = new float[pics.length];
 PImage[][][] imageTable = new PImage[256][256][256];
 
 
-int scl = 6;
+int scl = 8;
 int h, w;
+float zoom = 1;
+float accel = .01;
 void setup() {
   colorMode(HSB);
   noStroke();
   frameRate =1;
-  faith = loadImage("Roman.jpeg");
+  faith = loadImage("Faith.jpeg");
   surface.setSize(faith.width, faith.height);
   w = faith.width/scl;
   h = faith.height/scl;
@@ -72,10 +74,16 @@ void setup() {
     }
   }
 
-  printArray(imageTable);
 }
 
 void draw() {
+  //println(zoom);
+  pushMatrix();
+  
+  translate(width/2, height/2);
+  //scale(zoom);
+  //translate((mouseX -width/2)/zoom, (mouseY - height/2)/zoom);
+  
   background(0);
   smaller.loadPixels();
   int h1 = 0, s1 = 0, b1 = 0;
@@ -87,7 +95,7 @@ void draw() {
       int b = int(brightness(c));
       int h = int(hue(c)); 
       int s = int(saturation(c));
-      image(imageTable[b][h][s], x*scl, y*scl, scl, scl);
+      image(imageTable[b][h][s], x*scl-width/2, y*scl-height/2, scl, scl);
 
       if (mouseX > x*scl && mouseX < (x+1)*scl && mouseY > y*scl && mouseY < (y+1)*scl) {
           h1 = h;
@@ -100,4 +108,9 @@ void draw() {
   if(mousePressed) {
     image(imageTable[b1][h1][s1], 0, 0);
   }
+  
+  popMatrix();
+  
+  //accel += .01;
+  //zoom += accel;
 }
